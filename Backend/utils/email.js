@@ -43,12 +43,12 @@ class EmailService {
 
   async verifyConnection() {
     try {
-      // Add a timeout to prevent hanging on production (2 minutes)
+      // Add a timeout to prevent hanging on production (1 hour for Render)
       const verifyPromise = this.transporter.verify();
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Verification timeout")), 115000)
+        setTimeout(() => reject(new Error("Verification timeout")), 3600000),
       );
-      
+
       await Promise.race([verifyPromise, timeoutPromise]);
       console.log("✅ SMTP connection verified");
     } catch (error) {
@@ -699,7 +699,6 @@ Thank you for choosing ShuleAI!
       return { success: false, error: error.message };
     }
   }
-
 }
 
 module.exports = new EmailService();
