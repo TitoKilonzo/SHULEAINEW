@@ -20,7 +20,6 @@ app.use(
       "https://shule.memeyai.com",
       "https://shuleaiadmin.memeyai.com",
       "https://shuleaibackend-0fcq.onrender.com",
-      "https://shuleainew.onrender.com",
     ],
     credentials: true,
   }),
