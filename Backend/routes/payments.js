@@ -4,18 +4,23 @@ const axios = require("axios");
 const paymentController = require("../controllers/paymentController");
 
 // ── M-Pesa STK Push ────────────────────────────────────────────────────────
-const DARAJA_BASE_URL = process.env.DARAJA_BASE_URL || "https://api.safaricom.co.ke";
+const DARAJA_BASE_URL =
+  process.env.DARAJA_BASE_URL || "https://api.safaricom.co.ke";
 const CONSUMER_KEY = process.env.DARAJA_CONSUMER_KEY;
 const CONSUMER_SECRET = process.env.DARAJA_CONSUMER_SECRET;
 const BUSINESS_SHORT_CODE = process.env.BUSINESS_SHORT_CODE;
 const PASSKEY = process.env.DARAJA_PASSKEY;
-const MPESA_CALLBACK_URL = process.env.MPESA_CALLBACK_URL || "https://unsly-interarticular-tiesha.ngrok-free.dev";
+const MPESA_CALLBACK_URL =
+  process.env.MPESA_CALLBACK_URL ||
+  "https://unsly-interarticular-tiesha.ngrok-free.dev";
 
 async function getMpesaAccessToken() {
-  const auth = Buffer.from(`${CONSUMER_KEY}:${CONSUMER_SECRET}`).toString("base64");
+  const auth = Buffer.from(`${CONSUMER_KEY}:${CONSUMER_SECRET}`).toString(
+    "base64",
+  );
   const res = await axios.get(
     `${DARAJA_BASE_URL}/oauth/v1/generate?grant_type=client_credentials`,
-    { headers: { Authorization: `Basic ${auth}` } }
+    { headers: { Authorization: `Basic ${auth}` } },
   );
   return res.data.access_token;
 }
@@ -25,23 +30,51 @@ router.post("/stkpush", async (req, res) => {
     const { phoneNumber, amount } = req.body;
 
     if (!CONSUMER_KEY || !CONSUMER_SECRET || !BUSINESS_SHORT_CODE || !PASSKEY) {
-      return res.status(500).json({ success: false, message: "Server configuration error" });
+      return res
+        .status(500)
+        .json({ success: false, message: "Server configuration error" });
     }
     if (!phoneNumber || !amount) {
-      return res.status(400).json({ success: false, message: "Phone number and amount are required" });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Phone number and amount are required",
+        });
     }
     if (isNaN(amount) || parseFloat(amount) < 1) {
-      return res.status(400).json({ success: false, message: "Amount must be a valid number greater than 0" });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Amount must be a valid number greater than 0",
+        });
     }
 
     let phone = phoneNumber.replace(/\D/g, "");
     if (phone.startsWith("0")) phone = "254" + phone.substring(1);
-    else if ((phone.startsWith("7") || phone.startsWith("1")) && phone.length === 9) phone = "254" + phone;
+    else if (
+      (phone.startsWith("7") || phone.startsWith("1")) &&
+      phone.length === 9
+    )
+      phone = "254" + phone;
     else if (!phone.startsWith("254")) {
-      return res.status(400).json({ success: false, message: "Invalid phone number format. Use: 0712345678 or 254712345678" });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message:
+            "Invalid phone number format. Use: 0712345678 or 254712345678",
+        });
     }
     if (phone.length !== 12) {
-      return res.status(400).json({ success: false, message: "Phone number must be 12 digits including country code (254)" });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message:
+            "Phone number must be 12 digits including country code (254)",
+        });
     }
 
     const now = new Date();
@@ -53,7 +86,9 @@ router.post("/stkpush", async (req, res) => {
       String(now.getMinutes()).padStart(2, "0"),
       String(now.getSeconds()).padStart(2, "0"),
     ].join("");
-    const password = Buffer.from(BUSINESS_SHORT_CODE + PASSKEY + timestamp).toString("base64");
+    const password = Buffer.from(
+      BUSINESS_SHORT_CODE + PASSKEY + timestamp,
+    ).toString("base64");
 
     const accessToken = await getMpesaAccessToken();
 
@@ -74,13 +109,28 @@ router.post("/stkpush", async (req, res) => {
         AccountReference: "SHULEAI",
         TransactionDesc: "ShuleAI Payment",
       },
-      { headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" } }
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      },
     );
 
-    res.json({ success: true, message: "STK Push sent successfully. Please check your phone.", data: stkRes.data });
+    res.json({
+      success: true,
+      message: "STK Push sent successfully. Please check your phone.",
+      data: stkRes.data,
+    });
   } catch (error) {
     console.error("STK Push error:", error.response?.data || error.message);
-    res.status(500).json({ success: false, message: "Payment initiation failed", error: error.response?.data || error.message });
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Payment initiation failed",
+        error: error.response?.data || error.message,
+      });
   }
 });
 
