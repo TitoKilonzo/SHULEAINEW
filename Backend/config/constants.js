@@ -5,11 +5,6 @@ module.exports = {
   SUPPORT_EMAIL: "support@shuleai.com",
 
   SUBSCRIPTION_PLANS: {
-    test: {
-      amount: 5,
-      days: 1,
-      name: "Test Plan (5 KES)",
-    },
     weekly: {
       amount: 200,
       days: 7,

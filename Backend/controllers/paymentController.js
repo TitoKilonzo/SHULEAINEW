@@ -63,8 +63,6 @@ class PaymentController {
   // Get human-readable plan name
   getPlanName(planType) {
     switch (planType) {
-      case "test":
-        return "Test Plan (5 KES)";
       case "weekly":
         return "Weekly Plan";
       case "monthly":

@@ -63,6 +63,15 @@ window.addEventListener("DOMContentLoaded", () => {
 
     showMainApp();
   }
+
+  // Hide loading screen
+  const loadingScreen = document.getElementById('loading-screen');
+  if (loadingScreen) {
+    loadingScreen.classList.add('hidden');
+    setTimeout(() => {
+      loadingScreen.style.display = 'none';
+    }, 500);
+  }
 });
 
 function openSignInModal() {
